@@ -83,6 +83,41 @@
             tapping-term-ms = <180>;
             bindings = <&kp BSLH>, <&kp PIPE>;
         };
+
+        /* LOWER thumb: hold = momentary layer (exactly as before). A quick
+         * double-tap makes the layer sticky (&sl) until the next keypress,
+         * so a short symbol run does not need the thumb held down
+         * (urob-style smart layer). A single stray tap does nothing.
+         */
+        hlt: layer_tap {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "hold-preferred";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
+            bindings = <&mo>, <&td_lower>;
+        };
+
+        td_lower: td_lower {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&none>, <&sl LOWER>;
+        };
+
+        /* Arrows on RAISE: tap = one cell, hold 200ms = word jump
+         * (CTRL+LEFT/RIGHT). tap-preferred so a quick arrow tap never
+         * degrades into a word jump no matter what else is pressed around
+         * it; the word jump only ever happens when the arrow is held with
+         * intent.
+         */
+        hmarrow: nav_arrow {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <200>;
+            bindings = <&kp>, <&kp>;
+        };
     };
 
     combos {
@@ -109,7 +144,7 @@
          */
         combo_lang {
             layers = <BASE>;
-            timeout-ms = <50>;
+            timeout-ms = <40>;
             require-prior-idle-ms = <150>;
             key-positions = <41 44>;
             bindings = <&kp LA(LSHFT)>;
@@ -131,12 +166,14 @@
             //
             // Hold = letter-combo mods (G=GUI, A=ALT, C=CTRL, S=SHIFT left→right);
             // tap = the letter itself. Q+W = ESC, B+N = layout switch.
+            // LOWER: hold = layer; double-tap = sticky layer (stays on for
+            // the next keypress, so short symbol runs need no held thumb).
 
             bindings = <&td_grave &kp N1 &kp N2 &kp N3 &kp N4 &kp N5            &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &kp EQUAL
 &kp ESC   &kp Q   &kp W  &kp E  &kp R  &kp T           &kp Y  &kp U  &kp I  &kp O  &kp P  &kp LEFT_BRACKET
 &kp TAB   &hml LGUI A &hml LALT S &hml LCTRL D &hml LSHFT F &kp G  &kp H  &hmr RSHFT J &hmr RCTRL K &hmr RALT L &hmr RGUI SEMI &kp SQT
 &kp LEFT_SHIFT &kp Z &kp X &kp C &kp V &kp B &kp C_MUTE &kp CAPS &kp N &kp M &kp COMMA &kp DOT &kp FSLH &td_bslh
-                          &kp DEL &kp LCTRL &kp LGUI &mo LOWER &kp RET  &kp SPACE &mo RAISE &kp BACKSPACE &kp LEFT_ALT &kp RGUI
+                          &kp DEL &kp LCTRL &kp LGUI &hlt LOWER 0 &kp RET  &kp SPACE &mo RAISE &kp BACKSPACE &kp LEFT_ALT &kp RGUI
             >;
 
             // Left encoder is mounted mirrored on the Sofle PCB, so its
@@ -154,14 +191,18 @@
             // ------------------------------------------------------------------------------------------------------------
             // |  ~   |  F1 |  F2 |  F3  |  F4  |  F5  |                   |  F6  |  F7   |  F8   |  F9  |  F10  |  F11  |
             // |   `  |  1  |  2  |  3   |  4   |  5   |                   |  6   |  7    |  8    |  9   |   0   |  F12  |
-            // |      |  !  |  @  |  #   |  $   |  %   |                   |  ^   |  &    |  *    |  (   |   )   |   |   |
-            // |      |  =  |  -  |  +   |  {   |  }   |        |  |       |  [   |  ]    |  ;    |  :   |   \   |       |
+            // |      |  !  |  @  |  #   |  $   |  %   |                   |  ^   |  &    |  *    |  (   |   )   |   :   |
+            // |      |  _  |  -  |  +   |  {   |  }   |        |  |       |  [   |  ]    |  <   |  >   |   \   |   |   |
             //               |     |      |      |      |        |  |       |      |       |       |      |
+            //
+            // < and > sit on the comma/period keys, exactly where
+            // shift+, / shift+. put them on the base layer. ; stays on the
+            // base layer; : is here unshifted at the right pinky.
 
             bindings = <&kp TILDE &kp F1 &kp F2 &kp F3 &kp F4 &kp F5    &kp F6 &kp F7 &kp F8 &kp F9 &kp F10 &kp F11
 &kp GRAVE &kp N1 &kp N2 &kp N3 &kp N4 &kp N5    &kp N6 &kp N7 &kp N8 &kp N9 &kp N0 &kp F12
-&trans    &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT    &kp CARET &kp AMPS &kp ASTRK &kp LPAR &kp RPAR &kp PIPE
-&trans    &kp UNDERSCORE &kp MINUS &kp PLUS &kp LBRC &kp RBRC &trans &trans &kp LBKT &kp RBKT &kp SEMI &kp COLON &kp BSLH &trans
+&trans    &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT    &kp CARET &kp AMPS &kp ASTRK &kp LPAR &kp RPAR &kp COLON
+&trans    &kp UNDERSCORE &kp MINUS &kp PLUS &kp LBRC &kp RBRC &trans &trans &kp LBKT &kp RBKT &kp LT &kp GT &kp BSLH &kp PIPE
                           &trans &trans &trans &trans &trans  &trans &trans &trans &trans &trans
             >;
 
@@ -177,18 +218,24 @@
             // the layout switch on the left hand.
             // ------------------------------------------------------------------------------------------------------------
             // | BTCLR | BT1  | BT2  |  BT3  |  BT4  |  BT5 |                |      |      |       |      |       |       |
-            // |       | INS  | PSCR | CMENU | LANG |      |                | PGUP | HOME |  UP   | END  | none  |       |
-            // |       | ALT+ | CTRL+| SHFT+| GUI+ | CAPS |                | PGDN |  <-  |  v    |  ->  | DEL   | BKSPC |
+            // |       | INS  | PSCR | CMENU | LANG |      |                | PGUP | HOME |  UP   | END  | RPT   |       |
+            // |       | GUI+ | ALT+ | CTRL+| SHFT+| CAPS |                | PGDN |  <-  |  v    |  ->  | W.DEL | W.BSP |
             // |       | UNDO | CUT  | COPY  | PASTE|      |      |  |      | PREV | PLAY | NEXT  |      | none  | none  |
             //                |      |       |       |      |      |  |      |      |      |       |      |
             //
-            // ALT+/CTRL+/SHFT+/GUI+ are sticky keys: tap once, then the next
-            // key gets the modifier. Holding them works like a normal mod.
+            // GUI+/ALT+/CTRL+/SHFT+ are sticky keys: tap once, then the next
+            // key gets the modifier. They mirror the base home-row mods
+            // exactly (A=GUI, S=ALT, D=CTRL, F=SHFT) so muscle memory carries
+            // over. Holding them works like a normal mod.
+            // Arrows: tap = one cell, hold 200ms = word jump (CTRL+arrows).
+            // W.DEL / W.BSP = word-wise deletes (CTRL+DEL / CTRL+BKSPC);
+            // UNDO/CUT/COPY/PASTE send CTRL+Z/X/C/V so they actually work on
+            // Windows and Linux. RPT repeats the last key.
 
             bindings = <&bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4    &trans &trans &trans &trans &trans &trans
-&trans    &kp INS &kp PSCRN &kp K_CMENU &kp LA(LSHFT) &trans    &kp PG_UP &kp HOME &kp UP &kp END &none &trans
-&trans    &sk LALT &sk LCTRL &sk LSHFT &sk LGUI &kp CLCK    &kp PG_DN &kp LEFT &kp DOWN &kp RIGHT &kp DEL &kp BSPC
-&trans    &kp K_UNDO &kp K_CUT &kp K_COPY &kp K_PASTE &trans &trans &trans &kp C_PREV &kp C_PLAY_PAUSE &kp C_NEXT &trans &none &none
+&trans    &kp INS &kp PSCRN &kp K_CMENU &kp LA(LSHFT) &trans    &kp PG_UP &kp HOME &kp UP &kp END &key_repeat &trans
+&trans    &sk LGUI &sk LALT &sk LCTRL &sk LSHFT &kp CLCK    &kp PG_DN &hmarrow LC(LEFT) LEFT &kp DOWN &hmarrow LC(RIGHT) RIGHT &kp LC(DEL) &kp LC(BSPC)
+&trans    &kp LC(Z) &kp LC(X) &kp LC(C) &kp LC(V) &trans &trans &trans &kp C_PREV &kp C_PLAY_PAUSE &kp C_NEXT &trans &none &none
                           &trans &trans &trans &trans &trans  &trans &trans &trans &trans &trans
             >;
 
